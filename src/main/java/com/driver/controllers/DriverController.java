@@ -1,26 +1,48 @@
-package com.driver.controllers;
+package com.driver.services.impl;
 
+import com.driver.model.Cab;
+import com.driver.repository.CabRepository;
 import com.driver.services.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
 
+import com.driver.model.Driver;
+import com.driver.repository.DriverRepository;
 
-@RestController
-@RequestMapping(value = "/driver")
-public class DriverController {
-	
-	@PostMapping(value = "/register")
-	public ResponseEntity<Void> registerDriver(@RequestParam String mobile, @RequestParam String password){
-		return new ResponseEntity<>(HttpStatus.OK);
+@Service
+public class DriverServiceImpl implements DriverService {
+
+	@Autowired
+	DriverRepository driverRepository3;
+
+	@Autowired
+	CabRepository cabRepository3;
+
+	@Override
+	public void register(String mobile, String password)
+	{
+		//Save a driver in the database having given details and
+		// a cab with ratePerKm as 10 and availability as True by default.
+		Driver driver = new Driver();
+		driver.setMobile(mobile);
+		driver.setPassword(password);
+
+		Cab cab = new Cab();
+		cab.setPerKmRate(10);
+		cab.setDriver(driver);
+		cab.setAvailable(true);
+		driverRepository3.save(driver);
 	}
-	
-	@DeleteMapping(value = "/delete")
-	public void deleteDriver(@RequestParam Integer driverId){
+
+	@Override
+	public void removeDriver(int driverId){
+		// Delete driver without using deleteById function
+		driverRepository3.deleteById(driverId);
 	}
 
-	@PutMapping("/status")
-	public void updateStatus(@RequestParam Integer driverId){
+	@Override
+	public void updateStatus(int driverId){
+		//Set the status of respective car to unavailable
+		driverRepository3.findById(driverId).get().getCab().setAvailable(false);
 	}
 }
